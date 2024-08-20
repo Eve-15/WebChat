@@ -3,8 +3,6 @@ package websocket
 import (
 	"errors"
 	"fmt"
-	"github.com/link1st/gowebsocket/v2/lib/cache"
-	"github.com/link1st/gowebsocket/v2/servers/grpcclient"
 	"time"
 )
 
