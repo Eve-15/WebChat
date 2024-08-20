@@ -5,9 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
-
-	"github.com/link1st/gowebsocket/v2/common"
-	"github.com/link1st/gowebsocket/v2/models"
 )
 
 // DisposeFunc 处理函数
