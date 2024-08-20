@@ -4,8 +4,6 @@ package websocket
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/link1st/gowebsocket/v2/common"
-	"github.com/link1st/gowebsocket/v2/models"
 	"time"
 )
 
