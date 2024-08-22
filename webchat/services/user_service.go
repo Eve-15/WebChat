@@ -1,7 +1,6 @@
 package services
 
 import (
-	"encoding/json"
 	"errors"
 	"github.com/Eve-15/GoProjects/webchat/models"
 	"github.com/gin-gonic/gin"
@@ -16,16 +15,16 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// 用户上线
-func Online(c *gin.Context, name string) (*models.User, error) {
+// 用户上线（需要通过身份验证）
+func Online(c *gin.Context, user *models.User) (*models.User, error) {
 	// 升级 HTTP 连接为 WebSocket 连接
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	// 创建新用户
-	user := models.NewUser(name, conn)
+	// 设置 WebSocket 连接
+	user.Conn = conn
 
 	models.Mu.Lock()
 	models.OnlineMap[user.ID] = user
@@ -33,7 +32,7 @@ func Online(c *gin.Context, name string) (*models.User, error) {
 
 	// 广播用户加入消息
 	joinMessage := &models.Message{
-		Sender:  user.Name,
+		Sender:  user.Username,
 		Content: "joined the chat",
 		Type:    "join",
 	}
@@ -66,38 +65,7 @@ func GetOnlineUsers() []string {
 
 	var users []string
 	for _, user := range models.OnlineMap {
-		users = append(users, user.Name)
+		users = append(users, user.Username)
 	}
 	return users
-}
-
-// 广播消息给所有在线用户
-func BroadcastMessage(message *models.Message, sender *models.User) {
-	models.Mu.Lock()
-	defer models.Mu.Unlock()
-
-	for _, u := range models.OnlineMap {
-		if u.ID != sender.ID { // 不要给自己发送消息
-			u.WriteMessage(message)
-		}
-	}
-}
-
-// 处理用户消息
-func HandleMessages(user *models.User) {
-	defer user.Disconnect()
-
-	for {
-		select {
-		case message, ok := <-user.Channel:
-			if !ok {
-				return
-			}
-			var msg models.Message
-			if err := json.Unmarshal(message, &msg); err != nil {
-				continue
-			}
-			BroadcastMessage(&msg, user)
-		}
-	}
 }

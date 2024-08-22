@@ -7,25 +7,27 @@ import (
 	"sync"
 )
 
-// 在线用户的全局映射
-var (
-	OnlineMap = make(map[string]*User)
-	Mu        sync.Mutex
-)
-
 type User struct {
-	ID      string
-	Name    string
-	Conn    *websocket.Conn
-	Channel chan []byte
+	ID       string          `json:"id"`
+	Username string          `json:"username"`
+	Password string          `json:"password"`
+	Conn     *websocket.Conn `json:"-"`
+	Channel  chan []byte     `json:"-"`
 }
 
-func NewUser(name string, conn *websocket.Conn) *User {
+// 全局变量
+var (
+	OnlineMap = make(map[string]*User) // 在线用户映射
+	UserMap   = make(map[string]*User) // 所有注册用户映射（简化示例，实际应使用数据库）
+	Mu        = &sync.Mutex{}          // 互斥锁，用于保护OnlineMap和UserMap的并发访问
+)
+
+func NewUser(username, password string) *User {
 	return &User{
-		ID:      uuid.New().String(), // 生成唯一ID
-		Name:    name,
-		Conn:    conn,
-		Channel: make(chan []byte),
+		ID:       uuid.New().String(),
+		Username: username,
+		Password: password,
+		Channel:  make(chan []byte),
 	}
 }
 
@@ -58,25 +60,19 @@ func (u *User) CloseChannel() {
 
 // Disconnect 方法，处理用户断开连接的逻辑
 func (u *User) Disconnect() {
-	// 创建离开消息广播给其他用户
 	leaveMessage := &Message{
-		Sender:  u.Name,
+		Sender:  u.Username,
 		Content: "left the chat",
 		Type:    "leave",
 	}
 
-	// 广播离开消息
 	Mu.Lock()
 	for _, user := range OnlineMap {
 		user.WriteMessage(leaveMessage)
 	}
-	// 从在线用户列表中删除自己
 	delete(OnlineMap, u.ID)
 	Mu.Unlock()
 
-	// 关闭用户的消息通道
 	u.CloseChannel()
-
-	// 关闭 WebSocket 连接
 	u.Conn.Close()
 }

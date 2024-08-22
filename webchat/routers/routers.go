@@ -6,15 +6,12 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine) {
-	chatGroup := r.Group("/chat")
-	{
-		chatGroup.GET("/ws", controllers.ChatWebSocket) // WebSocket 连接接口
-	}
-
 	apiGroup := r.Group("/api")
 	{
-		apiGroup.GET("/users", controllers.GetOnlineUsers)     // 获取在线用户列表
-		apiGroup.POST("/users", controllers.UserOnline)        // 用户上线接口
+		apiGroup.POST("/register", controllers.Register)       // 用户注册
+		apiGroup.POST("/login", controllers.Login)             // 用户登录
+		apiGroup.POST("/online", controllers.UserOnline)       // 用户上线接口
 		apiGroup.DELETE("/users/:id", controllers.UserOffline) // 用户下线接口
+		apiGroup.GET("/users", controllers.GetOnlineUsers)     // 获取在线用户列表
 	}
 }

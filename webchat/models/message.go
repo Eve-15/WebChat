@@ -3,5 +3,5 @@ package models
 type Message struct {
 	Sender  string `json:"sender"`
 	Content string `json:"content"`
-	Type    string `json:"type"` // "message", "join", "leave"
+	Type    string `json:"type"` // "message", "private", "system"
 }
