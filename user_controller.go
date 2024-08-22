@@ -1,12 +1,3 @@
-package controllers
-
-import (
-	"github.com/Eve-15/GoProjects/webchat/models"
-	"github.com/Eve-15/GoProjects/webchat/services"
-	"github.com/gin-gonic/gin"
-	"net/http"
-)
-
 // 用户注册
 func Register(c *gin.Context) {
 	var json struct {
