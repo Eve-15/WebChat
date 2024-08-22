@@ -1,12 +1,3 @@
-package controllers
-
-import (
-	"github.com/Eve-15/GoProjects/webchat/models"
-	"github.com/Eve-15/GoProjects/webchat/services"
-	"github.com/gin-gonic/gin"
-	"net/http"
-)
-
 // ChatWebSocket 处理 WebSocket 连接
 func ChatWebSocket(c *gin.Context) {
 	// 获取请求中的 user_id 参数
